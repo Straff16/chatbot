@@ -7,9 +7,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 from nltk.stem import WordNetLemmatizer
+import wikipediaapi
+
+user_agent = "foo (merlin@example.com)"
+
+wiki = wikipediaapi.Wikipedia(user_agent, "es")
 
 warnings.filterwarnings('ignore')
 nltk.download("popular", quiet=True)
+
 
 f = open('napo.txt', 'r', errors='ignore')
 raw = f.read()
@@ -55,16 +61,19 @@ def response(user_response):
     return spar_response
 
 def know_about(topic):
-    if "napoleon" in topic.lower() or "bonaparte" in topic.lower():
-        return "Sé mucho sobre Napoleón Bonaparte. ¿Qué te gustaría saber sobre él?"
+    topic = topic.replace("saber sobre ", "")
+    page = wiki.page(topic)
+
+    if page.exists():
+        return page.summary
     else:
-        return "Lo siento, no estoy familiarizado con ese tema."
+        return "Lo siento no he encontrado nada"
+
 
 flag=True
 print("Spar: Mi nombre es Spar. Responderé tus preguntas sobre Chatbots. Si quieres salir, escribe Adiós.")
 while(flag==True):
         user_response = input()
-        user_response=user_response.lower()
         if(user_response!='adiós'):
             if(user_response=="gracias" or user_response=='gracias' ):
                 flag=False
